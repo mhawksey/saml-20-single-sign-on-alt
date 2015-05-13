@@ -55,7 +55,16 @@ class SAML_Client
         $username = $attrs[$this->settings->get_attribute('username')][0];
         if(get_user_by('login',$username))
         {
-          $this->simulate_signon($username);
+          //$this->simulate_signon($username);
+		  // FIX https://wordpress.org/support/topic/passwords-of-existing-users-not-working-how-to-update#post-6835783
+		  require_once(ABSPATH . WPINC . '/ms-functions.php');
+           $user = get_user_by( 'login', $username );
+           if($user)
+           {
+             $newpass = $this->user_password($username,$this->secretsauce);
+             wp_set_password( $newpass , $user->ID );
+           };
+           $this->simulate_signon($username);
         }
         else
         {
@@ -183,7 +192,10 @@ class SAML_Client
     $attrs = $this->saml->getAttributes();
     if(array_key_exists($this->settings->get_attribute('groups'), $attrs) )
     {
-      if( in_array($this->settings->get_group('admin'),$attrs[$this->settings->get_attribute('groups')]) )
+      /*
+	  // CHANGE Only update user role for subscribers, other roles locally set
+	  
+	  if( in_array($this->settings->get_group('admin'),$attrs[$this->settings->get_attribute('groups')]) )
       {
         $role = 'administrator';
       }
@@ -199,7 +211,7 @@ class SAML_Client
       {
         $role = 'contributor';
       }
-      elseif( in_array($this->settings->get_group('subscriber'),$attrs[$this->settings->get_attribute('groups')]) )
+      else*/if( in_array($this->settings->get_group('subscriber'),$attrs[$this->settings->get_attribute('groups')]) )
       {
         $role = 'subscriber';
       }
