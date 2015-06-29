@@ -149,7 +149,13 @@ class SimpleSAML_Utilities {
 	/**
 	 * Will return https://sp.example.org/universities/ruc/baz/simplesaml/saml2/SSOService.php
 	 */
-	public static function selfURLNoQuery() {
+	 // FIX https://github.com/HTML24/WAYF/wiki/Frequent-Errors-List#exception-destination-in-response-doesnt-match-the-current-url
+	 public static function selfURLNoQuery() {
+		$url = self::selfURL();
+		$url = strtok($url, '?');
+		return $url;
+	}
+	/*public static function selfURLNoQuery() {
 	
 		$selfURLhost = self::selfURLhost();
 		$selfURLhost .= $_SERVER['SCRIPT_NAME'];
@@ -158,7 +164,7 @@ class SimpleSAML_Utilities {
 		}
 		return $selfURLhost;
 	
-	}
+	}*/
 
 
 	/**

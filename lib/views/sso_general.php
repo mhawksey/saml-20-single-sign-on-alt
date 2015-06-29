@@ -1,3 +1,7 @@
+<?php 
+#FIX correct admin url in multi networks
+$admin_url = admin_url('options-general.php');
+?>
 <div class="wrap">
 <h3>Status</h3>
 <?php
@@ -30,7 +34,7 @@
   <br/>
   <div class="option-separator"></div>
 
-<form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+<form method="post" action="<?php echo $admin_url . '?page=' . basename(__FILE__); ?>&updated=true">
 <?php wp_nonce_field('sso_general'); ?>
 <table class="form-table">
   <tr>

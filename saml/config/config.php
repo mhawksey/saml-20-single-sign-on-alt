@@ -423,11 +423,13 @@ $config = array (
 	 * Both Shibboleth and SAML 2.0
 	 */
 	'authproc.sp' => array(
-		/*
-		10 => array(
-			'class' => 'core:AttributeMap', 'removeurnprefix'
-		),
-		*/
+		
+		5 => array('class' => 'core:AttributeMap', 'removeurnprefix'),
+		// Map OIDs back to friendly names
+		10 => array('class' => 'core:AttributeMap',
+					'urn:oid:0.9.2342.19200300.100.1.3' => 'email',
+					),
+		
 
 		/*
 		 * Generate the 'group' attribute populated from other variables, including eduPersonAffiliation.

@@ -1,3 +1,11 @@
+<?php 
+#FIX correct network admin url
+if ($is_network_admin_page && $is_multisite) {
+  $admin_url = network_admin_url('settings.php');
+} else {
+  $admin_url = $_SERVER['PHP_SELF'];
+}
+?>
 <div class="wrap">
     <h2>SAML Identity Provider Settings</h2>
     <p><strong>Note:</strong> A valid Identity Provider (IdP) must be defined before <?php if( is_multisite()){ echo 'any sites in the network';} else{ echo 'the site';}?> can use Single-Sign On.<?php if( is_multisite()){ echo ' These settings affect all sites in your network.';}?></p>
@@ -18,7 +26,7 @@
             echo '<div class="error below-h2"><p>Your changes couldn&rsquo;t be saved. Is the file writable by the server?</p></div>'."\n";
         }
     ?>
-  <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+  <form method="post" action="<?php echo $admin_url . '?page=' . basename(__FILE__); ?>&updated=true">
     <?php wp_nonce_field('sso_idp_metadata'); ?>
     <h3>Autofill using Metadata</h3>
     <label for="metadata_url">URL to IdP Metadata </label><input type="text" name="metadata_url" size="40" />
@@ -26,8 +34,7 @@
   </form><br/>
   
   <div class="option-separator"><span class="caption">OR</span></div>
-    
-  <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+  <form method="post" action="<?php echo $admin_url . '?page=' . basename(__FILE__); ?>&updated=true">
   <?php wp_nonce_field('sso_idp_manual'); ?>
     <h3>Enter IdP Info Manually</h3>
     <fieldset class="options">
@@ -72,6 +79,12 @@
 <?php   
             }
             ?>
+<tr valign="top">
+  <th scope="row"><label for="saml_support_email">Support email address</label></th> 
+  <td><input type="text" name="saml_support_email" id="saml_support_email" value="<?php echo get_option('saml_support_email'); ?>" size="40" style="font-family: monospace;"/>
+  <span class="setting-description">Support email address for users to contact if they experience login issues</span> 
+  </td>
+</tr>
     </table>
     </fieldset>
     <div class="submit">

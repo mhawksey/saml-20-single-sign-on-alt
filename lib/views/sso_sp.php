@@ -1,4 +1,8 @@
-<div class="wrap">
+<?php
+#FIX correct admin url in multi networks
+$admin_url = admin_url('options-general.php');
+
+?><div class="wrap">
 
 <?php
     $idp = parse_ini_file( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',true);
@@ -7,7 +11,7 @@
         echo '<div class="error below-h2"><p>No Identity Providers have been configured. You will not be able to configure WordPress for Single Sign-On until this is set up.</p></div>'."\n";
     }
 ?>
-<form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true" enctype="multipart/form-data">
+<form method="post" action="<?php echo $admin_url . '?page=' . basename(__FILE__); ?>&updated=true" enctype="multipart/form-data">
 <?php wp_nonce_field('sso_sp'); ?>
 <input type="hidden" name="MAX_FILE_SIZE" value="4194304" /> 
 <fieldset class="options">

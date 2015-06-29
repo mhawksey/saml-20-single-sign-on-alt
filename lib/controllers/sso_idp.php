@@ -106,6 +106,22 @@ elseif (isset($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'],'sso_idp_m
     $contents .= '  certFingerprint = "' . str_replace(':','',$_POST['idp_fingerprint']) . '"'."\n";
     
     $save_status = file_put_contents( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini', $contents ); 
+	
+	$option_name = 'saml_support_email';
+	$new_value = $_POST['saml_support_email'];
+	
+	if ( get_option( $option_name ) !== false ) {
+	
+		// The option already exists, so we just update it.
+		update_option( $option_name, $new_value );
+	
+	} else {
+	
+		// The option hasn't been added yet. We'll add it with $autoload set to 'no'.
+		$deprecated = null;
+		$autoload = 'no';
+		add_option( $option_name, $new_value, $deprecated, $autoload );
+	}
 }
 
   $status = $this->get_saml_status();

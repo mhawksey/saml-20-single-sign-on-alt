@@ -4,6 +4,7 @@ class SAML_Client
   private $saml;
   private $opt;
   private $secretsauce;
+  private $support_message;
   
   function __construct()
   {
@@ -15,8 +16,8 @@ class SAML_Client
 			$this->saml = new SimpleSAML_Auth_Simple((string)get_current_blog_id());
 			
 			add_action('wp_authenticate',array($this,'authenticate'));
-	    add_action('wp_logout',array($this,'logout'));
-      add_action('login_form', array($this, 'modify_login_form'));
+	    	add_action('wp_logout',array($this,'logout'));
+      		add_action('login_form', array($this, 'modify_login_form'));
 		}
     
     // Hash to generate password for SAML users.
@@ -27,6 +28,10 @@ class SAML_Client
     //   it's messy, so be careful!
 
     $this->secretsauce = constant('AUTH_KEY');
+	$suppport_email = get_option('saml_support_email');
+	if ($suppport_email && $suppport_email !==''){
+		$this->support_message = 'Please contact '.$suppport_email;
+	}
   }
   
   /**
@@ -50,19 +55,21 @@ class SAML_Client
       $redirect_url = (array_key_exists('redirect_to', $_GET)) ? wp_login_url( $_GET['redirect_to']) : get_admin_url();
       $this->saml->requireAuth( array('ReturnTo' => $redirect_url ) );
       $attrs = $this->saml->getAttributes();
-      if(array_key_exists($this->settings->get_attribute('username'), $attrs) )
+      if(array_key_exists($this->settings->get_attribute('username'), $attrs) && array_key_exists($this->settings->get_attribute('email'), $attrs))
       {
         $username = $attrs[$this->settings->get_attribute('username')][0];
+		$email = $attrs[$this->settings->get_attribute('email')][0];
         if(get_user_by('login',$username))
         {
-          //$this->simulate_signon($username);
-		  // FIX https://wordpress.org/support/topic/passwords-of-existing-users-not-working-how-to-update#post-6835783
-		  require_once(ABSPATH . WPINC . '/ms-functions.php');
+           //$this->simulate_signon($username);
+		   // FIX https://wordpress.org/support/topic/passwords-of-existing-users-not-working-how-to-update#post-6835783
+		   require_once(ABSPATH . WPINC . '/ms-functions.php');
            $user = get_user_by( 'login', $username );
            if($user)
            {
              $newpass = $this->user_password($username,$this->secretsauce);
              wp_set_password( $newpass , $user->ID );
+			 wp_update_user( array( 'ID' => $user->ID, 'user_email' => $email ) );
            };
            $this->simulate_signon($username);
         }
@@ -73,7 +80,7 @@ class SAML_Client
       }
       else
       {
-        die('A username was not provided.');
+        die('A username and email was not provided.');
       }  
     }
   }
@@ -118,28 +125,33 @@ class SAML_Client
     }
     else
     {
-      die('A username was not provided.');
+      die('A username was not provided. '.$this->support_message);
     }
     
     $role = $this->update_role();
     
     if( $role !== false )
     {
-      $user_opts = array(
-        'user_login' => $login ,
-        'user_pass'  => $this->user_password($login,$this->secretsauce) ,
-        'user_email' => $email ,
-        'first_name' => $first_name ,
-        'last_name'  => $last_name ,
-        'display_name' => $display_name ,
-        'role'       => $role
-        );
-      wp_insert_user($user_opts);
-      $this->simulate_signon($login);
+      if( !email_exists( $email )) {
+		  $user_opts = array(
+			'user_login' => $login ,
+			'user_pass'  => $this->user_password($login,$this->secretsauce) ,
+			'user_email' => $email ,
+			'first_name' => $first_name ,
+			'last_name'  => $last_name ,
+			'display_name' => $display_name ,
+			'role'       => $role
+			);
+		  wp_insert_user($user_opts);
+		  $this->simulate_signon($login);
+	  } else {
+		  die('We\'ve detected a possible duplicate accont. '.$this->support_message);
+	  }
+      
     }
     else
     {
-      die('The website administrator has not given you permission to log in.');
+	  die('The website administrator has not given you permission to log in. '.$this->support_message);
     }
   }
   
@@ -211,7 +223,12 @@ class SAML_Client
       {
         $role = 'contributor';
       }
-      else*/if( in_array($this->settings->get_group('subscriber'),$attrs[$this->settings->get_attribute('groups')]) )
+      else*/
+	  
+	  if( in_array($this->settings->get_group('admin'),$attrs[$this->settings->get_attribute('groups')]) )
+      {
+        $role = 'administrator';
+      }elseif( in_array($this->settings->get_group('subscriber'),$attrs[$this->settings->get_attribute('groups')]) )
       {
         $role = 'subscriber';
       }
