@@ -8,7 +8,6 @@ if ($is_network_admin_page && $is_multisite) {
     $show_general = false;
     $show_sp = false;
     $show_idp = true;
-	
 } elseif (!$is_network_admin_page && $is_multisite) {
     $show_general = true;
     $show_sp = true;

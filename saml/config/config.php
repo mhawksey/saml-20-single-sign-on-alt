@@ -89,7 +89,7 @@ $config = array (
 	 * also as the technical contact in generated metadata.
 	 */
 	'technicalcontact_name'     => 'Administrator',
-	'technicalcontact_email'    => 'noreply@example.org',
+	'technicalcontact_email'    => 'helpdesk@alt.ac.uk',
 
 	/*
 	 * The timezone of the server. This option should be set to the timezone you want
@@ -423,7 +423,7 @@ $config = array (
 	 * Both Shibboleth and SAML 2.0
 	 */
 	'authproc.sp' => array(
-		
+		// FIX for some reason not mapping email
 		5 => array('class' => 'core:AttributeMap', 'removeurnprefix'),
 		// Map OIDs back to friendly names
 		10 => array('class' => 'core:AttributeMap',

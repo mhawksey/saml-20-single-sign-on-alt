@@ -1,11 +1,12 @@
 <?php
   global $saml_opts;
   $status = $this->get_saml_status();
-  
+  $wp_option = $this->settings->get_wp_option();
   if (isset($_POST['submit']) &&  wp_verify_nonce($_POST['_wpnonce'],'sso_general') ) 
   { 
-    if(get_option('saml_authentication_options'))
-    		$saml_opts = get_option('saml_authentication_options');
+  
+    if(get_option($wp_option))
+    		$saml_opts = get_option($wp_option);
     		
     // Is the enable box checked, and is the plugin ready to be enabled?
     if(isset($_POST['enabled']) && $_POST['enabled'] == 'enabled')
@@ -36,12 +37,12 @@
       $saml_opts['allow_sso_bypass'] = false; 
     }
 
-    update_option('saml_authentication_options', $saml_opts);
+    update_option($wp_option, $saml_opts);
   }
   
-  if(get_option('saml_authentication_options'))
+  if(get_option($wp_option))
   {
-		$saml_opts = get_option('saml_authentication_options');
+		$saml_opts = get_option($wp_option);
 	}
 	
 	  

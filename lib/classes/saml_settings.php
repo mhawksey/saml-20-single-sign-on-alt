@@ -9,7 +9,8 @@ Class SAML_Settings
   
   function __construct()
   {
-    $this->wp_option = 'saml_authentication_options';
+	  $upload_dir = wp_upload_dir();
+    $this->wp_option = 'saml_authentication_options_alt';
     $this->current_version = '0.9.2';
     $this->cache = false;
     $this->_check_environment();
@@ -34,6 +35,10 @@ Class SAML_Settings
   public function get_nameidpolicy()
   {
     return (string) $this->settings['nameidpolicy'];
+  }
+  public function get_wp_option()
+  {
+	return (string) $this->wp_option;
   }
   
   /**
@@ -273,9 +278,9 @@ Class SAML_Settings
         'groups' => '',
       ),
       'groups' => array(
-        'super_admin' => '',
-        'admin' => '',
-        'editor' => '',
+        'super_admin' => 'alt_superuser',
+        'admin' => 'alt_superuser',
+        'editor' => 'alt_role_holder',
         'author' => '',
         'contributor' => '',
         'subscriber' => '',
@@ -286,6 +291,7 @@ Class SAML_Settings
     
     return($defaults);
   }
+  
   
   /**
    * Checks for the presence of various files and directories that the plugin needs to operate
@@ -309,10 +315,12 @@ Class SAML_Settings
   	{
   		mkdir( constant('SAMLAUTH_CONF') . '/config' , 0775, true );
   	}
-  	
   	if(! file_exists(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini') )
   	{
-  		file_put_contents(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',"[https://your-idp.net]\nname = Your IdP\nSingleSignOnService = https://your-idp.net/SSOService\nSingleLogoutService = https://your-idp.net/SingleLogoutService\ncertFingerprint = 0000000000000000000000000000000000000000");
+  		#FIX Hard code IdP
+		file_put_contents(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',"[https://www.alt.ac.uk/simplesaml/saml2/idp/metadata.php]\nname = www.alt.ac.uk\nSingleSignOnService = https://www.alt.ac.uk/simplesaml/saml2/idp/SSOService.php\nSingleLogoutService = https://www.alt.ac.uk/simplesaml/saml2/idp/SingleLogoutService.php\ncertFingerprint = 9f4d915a5037b773331a80a2840067b524d58621");
+
+/*[https://your-idp.net]\nname = Your IdP\nSingleSignOnService = https://your-idp.net/SSOService\nSingleLogoutService = https://your-idp.net/SingleLogoutService\ncertFingerprint = 0000000000000000000000000000000000000000");*/
   	}
   	
   	if(! file_exists( constant('SAMLAUTH_CONF') . '/certs/.htaccess' ) || md5_file( constant('SAMLAUTH_CONF') . '/certs/.htaccess' ) != '9f6dc1ce87ca80bc859b47780447f1a6')

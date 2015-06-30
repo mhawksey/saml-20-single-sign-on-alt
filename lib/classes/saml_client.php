@@ -80,7 +80,7 @@ class SAML_Client
       }
       else
       {
-        die('A username and email was not provided.');
+        die('A username and email was not provided. '.$this->support_message);
       }  
     }
   }
