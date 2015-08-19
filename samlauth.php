@@ -35,4 +35,33 @@ if( is_admin() )
   $SAML_Admin = new SAML_Admin();
 }
 
+// disable BuddyPress settings tab
+// https://buddypress.org/support/topic/hide-general-settings/
+function my_plugin_init() {
+	if( class_exists( 'BuddyPress' ) ) {
+function alt_bp_change_settings_default() {
+	global $bp;
+	$args = array(
+					'parent_slug' => 'settings',
+					'screen_function' => 'bp_core_screen_notification_settings',
+					'subnav_slug' => 'notifications'
+					);
+	bp_core_new_nav_default( $args );
+	if ( bp_use_wp_admin_bar() ) {
+		add_action( 'wp_before_admin_bar_render', create_function(
+		'', 'global $wp_admin_bar; $wp_admin_bar->remove_menu( "my-account-settings-general" );' ) );
+	}
+}
+add_action( 'bp_setup_nav','alt_bp_change_settings_default', 5);
+
+function alt_bp_remove_general() {
+	global $bp;
+	bp_core_remove_subnav_item( $bp->settings->slug, 'general' );
+}
+add_action( 'bp_setup_nav', 'alt_bp_remove_general', 200);
+	}
+}
+add_action( 'plugins_loaded', 'my_plugin_init' );
+
+
 // end of file 

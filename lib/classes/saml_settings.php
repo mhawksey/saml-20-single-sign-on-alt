@@ -268,7 +268,7 @@ Class SAML_Settings
     $defaults = array(
       'option_version' => $this->current_version,
       'enabled' => false,
-      'idp' => 'https://your-idp.net',
+      'idp' => 'https://www.alt.ac.uk/simplesaml/saml2/idp/metadata.php',
       'nameidpolicy' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
       'attributes' => array(
         'username' => '',

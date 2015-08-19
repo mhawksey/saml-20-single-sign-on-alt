@@ -70,7 +70,8 @@ class SAML_Client
              $newpass = $this->user_password($username,$this->secretsauce);
              wp_set_password( $newpass , $user->ID );
 			 wp_update_user( array( 'ID' => $user->ID, 'user_email' => $email ) );
-           };
+
+           }
            $this->simulate_signon($username);
         }
         else
@@ -142,6 +143,10 @@ class SAML_Client
 			'display_name' => $display_name ,
 			'role'       => $role
 			);
+		  if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+			  $nick = explode("@",$login);
+			  $user_opts['user_nicename'] = $nick[0];
+		  }
 		  wp_insert_user($user_opts);
 		  $this->simulate_signon($login);
 	  } else {
@@ -228,7 +233,11 @@ class SAML_Client
 	  if( in_array($this->settings->get_group('admin'),$attrs[$this->settings->get_attribute('groups')]) )
       {
         $role = 'administrator';
-      }elseif( in_array($this->settings->get_group('subscriber'),$attrs[$this->settings->get_attribute('groups')]) )
+      }elseif( in_array($this->settings->get_group('editor'),$attrs[$this->settings->get_attribute('groups')]) )
+      {
+        $role = 'editor';
+      }
+	  elseif( (array_intersect(explode(",",$this->settings->get_group('subscriber')), $attrs[$this->settings->get_attribute('groups')]))) 
       {
         $role = 'subscriber';
       }
@@ -246,11 +255,18 @@ class SAML_Client
       $role = false;
     }
     
-    $user = get_user_by('login',$attrs[$this->settings->get_attribute('username')][0]);
+    $user = get_user_by('login',strtolower ($attrs[$this->settings->get_attribute('username')][0]));
     if($user)
     {
       $user->set_role($role);
+	  if ($role){  
+		$blog_id = get_current_blog_id();
+		if( !is_user_member_of_blog($user->ID, $blog_id ) ){
+			add_user_to_blog( $blog_id, $user->ID, $role ); 
+		}  
+	  }
     }
+	
     
     return $role;
   }
